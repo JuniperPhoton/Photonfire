@@ -4,30 +4,96 @@ import XCTest
 import PhotonfireMacros
 
 let testMacros: [String: Macro.Type] = [
-    "stringify": StringifyMacro.self,
+    "PhotonfireService": PhotonfireServiceMacro.self,
+    "PhotonfireGet": PhotonfireGetMacro.self,
 ]
 
 final class PhotonfireTests: XCTestCase {
-    func testMacro() {
+    func testService() {
         assertMacroExpansion(
             """
-            #stringify(a + b)
+            @PhotonfireService
+            protocol AccountService: PhotonfireServiceProtocol {
+                @PhotonfireGet(path: "/account")
+                func getAccount(id: String, name: String) async throws -> Account
+                
+                @PhotonfireGet(path: "/account")
+                func getAccount(activated: Bool) async throws -> Account
+            }
             """,
             expandedSource: """
-            (a + b, "a + b")
-            """,
-            macros: testMacros
-        )
-    }
+            
+            protocol AccountService: PhotonfireServiceProtocol {
+                func getAccount(id: String, name: String) async throws -> Account
+                func getAccount(activated: Bool) async throws -> Account
+            }
+            class PhotonfireAccountService: AccountService {
+                static func createInstance(client: PhotonfireClient) -> PhotonfireAccountService {
+                    return PhotonfireAccountService(client: client)
+                }
+                private let client: PhotonfireClient
+                private init(client: PhotonfireClient) {
+                    self.client = client
+                }
+                func getAccount(id: String, name: String) async throws -> Account {
+                    let appendPath = "/account"
 
-    func testMacroWithStringLiteral() {
-        assertMacroExpansion(
-            #"""
-            #stringify("Hello, \(name)")
-            """#,
-            expandedSource: #"""
-            ("Hello, \(name)", #""Hello, \(name)""#)
-            """#,
+                    guard var urlComponents = URLComponents(string: client.baseURL.absoluteString) else {
+                        throw PhotonfireError.parameterError("failed to create URLComponents")
+                    }
+
+                    urlComponents.path += appendPath
+                    urlComponents.queryItems = [
+                        .init(name: "id", value: id),
+                        .init(name: "name", value: name)
+                    ]
+
+                    guard let finalURL = urlComponents.url else {
+                        throw PhotonfireError.parameterError("failed to create url")
+                    }
+
+                    let type = Account.self
+
+                    let session = client.session
+                    var request = URLRequest(url: finalURL)
+                    setHeaders(request: &request, httpMethod: "GET", headers: client.defaultHeaders)
+
+                    let (data, _) = try await session.data(for: request)
+                    return try client.jsonDecoder.decode(type, from: data)
+                }
+                func getAccount(activated: Bool) async throws -> Account {
+                    let appendPath = "/account"
+
+                    guard var urlComponents = URLComponents(string: client.baseURL.absoluteString) else {
+                        throw PhotonfireError.parameterError("failed to create URLComponents")
+                    }
+
+                    urlComponents.path += appendPath
+                    urlComponents.queryItems = [
+                        .init(name: "activated", value: activated)
+                    ]
+
+                    guard let finalURL = urlComponents.url else {
+                        throw PhotonfireError.parameterError("failed to create url")
+                    }
+
+                    let type = Account.self
+
+                    let session = client.session
+                    var request = URLRequest(url: finalURL)
+                    setHeaders(request: &request, httpMethod: "GET", headers: client.defaultHeaders)
+
+                    let (data, _) = try await session.data(for: request)
+                    return try client.jsonDecoder.decode(type, from: data)
+                }
+                private func setHeaders(request: inout URLRequest, httpMethod: String, headers: [String: String]) {
+                    headers.forEach { (k, v) in
+                        request.setValue(v, forHTTPHeaderField: k)
+                    }
+                    request.httpMethod = httpMethod
+                }
+            }
+            """,
             macros: testMacros
         )
     }

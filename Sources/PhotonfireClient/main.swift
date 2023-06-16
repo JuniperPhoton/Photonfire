@@ -1,8 +1,21 @@
 import Photonfire
+import Foundation
 
-let a = 17
-let b = 25
+struct Account: Codable {
+    let name: String
+    let id: String
+    
+    init(name: String, id: String) {
+        self.name = name
+        self.id = id
+    }
+}
 
-let (result, code) = #stringify(a + b)
-
-print("The value \(result) was produced by the code \"\(code)\"")
+@PhotonfireService
+protocol AccountService: PhotonfireServiceProtocol {
+    @PhotonfireGet(path: "/account")
+    func getAccount(id: String, name: String) async throws -> Account
+    
+    @PhotonfireGet(path: "/account")
+    func getAccount(activated: Bool) async throws -> Account
+}
