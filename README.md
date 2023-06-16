@@ -1,6 +1,6 @@
 # Photonfire
 
-A library utilize Swift Macros to generate code for network requests, inspired by [Retrofit](https://square.github.io/retrofit/).
+A library utilize [Swift Macros](https://developer.apple.com/documentation/swift/macros) to generate code for network requests, inspired by [Retrofit](https://square.github.io/retrofit/).
 All you need to do is writing a `protocol` that conforms to the `PhotonfireServiceProtocol` and add macros to describe how to access your network resources.
 
 It uses `URLSession` to perform HTTP requests, with no other frameworks included.
