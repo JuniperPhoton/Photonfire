@@ -5,7 +5,7 @@ All you need to do is writing a `protocol` that conforms to the `PhotonfireServi
 
 It uses `URLSession` to perform HTTP requests, with no other frameworks included.
 
-> Note: this library is in early stage, and it supports generating GET methods for now. 
+> Note: this library is in early stage, and it supports generating GET methods for now. Since Swift Macros is availabe in Swift 5.9, to test this library, you should use Xcode 15 beta.
 
 ## Usage
 
