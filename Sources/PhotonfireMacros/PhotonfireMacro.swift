@@ -77,10 +77,12 @@ public struct PhotonfireServiceMacro: PeerMacro {
             
             parameters.forEach { s in
                 if let s = s {
-                    queryItems.append(".init(name: \"\(s.firstName.text)\", value: \(s.firstName.text))")
+                    let name = s.tryGetQueryName() ?? s.firstName.text
+                    queryItems.append(".init(name: \"\(name)\", value: \(s.firstName.text))")
                 }
             }
             
+            // TODO remove attributes from funcDecl signature parameters
             return """
             func \(funcDecl.identifier)\(raw: funcDecl.signature.description) {
                 let appendPath = \(appendPathExpr)
@@ -136,7 +138,51 @@ public struct PhotonfireServiceMacro: PeerMacro {
     }
 }
 
+extension FunctionParameterSyntax {
+    func tryGetQueryName() -> String? {
+        guard let attributeSyntax = self.attributes?.first?.as(AttributeSyntax.self) else {
+            return nil
+        }
+        
+        if attributeSyntax.attributeName.description != "PhotonfireQuery" {
+            return nil
+        }
+        
+        guard let argument = attributeSyntax.argument?
+            .as(TupleExprElementListSyntax.self)?
+            .first?.as(TupleExprElementSyntax.self) else {
+            return nil
+        }
+        
+        if argument.label?.text != "name" {
+            return nil
+        }
+        
+        guard let stringLiteralExprSyntax = argument.expression.as(StringLiteralExprSyntax.self) else {
+            return nil
+        }
+        
+        let nameValue = stringLiteralExprSyntax.segments.reduce(into: "") { partialResult, e in
+            if let syntax = e.as(StringSegmentSyntax.self) {
+                partialResult += syntax.content.text
+            }
+        }
+        
+        return nameValue.isEmpty ? nil : nameValue
+    }
+}
+
 public struct PhotonfireGetMacro: MemberMacro {
+    public static func expansion(
+        of node: SwiftSyntax.AttributeSyntax,
+        providingMembersOf declaration: some DeclGroupSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> [SwiftSyntax.DeclSyntax] {
+        return []
+    }
+}
+
+public struct PhotonfireQueryMacro: MemberMacro {
     public static func expansion(
         of node: SwiftSyntax.AttributeSyntax,
         providingMembersOf declaration: some DeclGroupSyntax,

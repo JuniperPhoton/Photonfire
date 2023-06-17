@@ -17,5 +17,5 @@ protocol AccountService: PhotonfireServiceProtocol {
     func getAccount(id: String, name: String) async throws -> Account
     
     @PhotonfireGet(path: "/account")
-    func getAccount(activated: Bool) async throws -> Account
+    func getAccount(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> Account
 }
