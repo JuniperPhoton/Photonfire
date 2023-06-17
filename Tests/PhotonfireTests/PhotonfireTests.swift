@@ -16,16 +16,16 @@ final class PhotonfireTests: XCTestCase {
             protocol AccountService: PhotonfireServiceProtocol {
                 @PhotonfireGet(path: "/account")
                 func getAccount(id: String, name: String) async throws -> Account
-                
+            
                 @PhotonfireGet(path: "/account")
-                func getAccount(activated: Bool) async throws -> Account
+                func getAccount(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> Account
             }
             """,
             expandedSource: """
             
             protocol AccountService: PhotonfireServiceProtocol {
                 func getAccount(id: String, name: String) async throws -> Account
-                func getAccount(activated: Bool) async throws -> Account
+                func getAccount(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> Account
             }
             class PhotonfireAccountService: AccountService {
                 static func createInstance(client: PhotonfireClient) -> PhotonfireAccountService {
@@ -61,7 +61,7 @@ final class PhotonfireTests: XCTestCase {
                     let (data, _) = try await session.data(for: request)
                     return try client.jsonDecoder.decode(type, from: data)
                 }
-                func getAccount(activated: Bool) async throws -> Account {
+                func getAccount(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> Account {
                     let appendPath = "/account"
 
                     guard var urlComponents = URLComponents(string: client.baseURL.absoluteString) else {
@@ -70,7 +70,7 @@ final class PhotonfireTests: XCTestCase {
 
                     urlComponents.path += appendPath
                     urlComponents.queryItems = [
-                        .init(name: "activated", value: activated)
+                        .init(name: "is_activated", value: activated)
                     ]
 
                     guard let finalURL = urlComponents.url else {

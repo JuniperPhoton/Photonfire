@@ -9,5 +9,6 @@ struct PhotonfirePlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
         PhotonfireServiceMacro.self,
         PhotonfireGetMacro.self,
+        PhotonfireQueryMacro.self,
     ]
 }
