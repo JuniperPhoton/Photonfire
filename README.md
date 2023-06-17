@@ -18,6 +18,9 @@ First define a protocol that conforms to `PhotonfireServiceProtocol` and:
 protocol OpenAIKeyService: PhotonfireServiceProtocol {
     @PhotonfireGet(path: "/APIKeys")
     func getKeys(id: String) async throws -> [OpenAIKey]
+
+    @PhotonfireGet(path: "/APIKeys")
+    func getKey(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> OpenAIKey
 }
 ```
 
@@ -33,6 +36,9 @@ class PhotonfireOpenAIKeyService: OpenAIKeyService {
         self.client = client
     }
     func getKeys(id: String) async throws -> [OpenAIKey] {
+        // impl...
+    }
+    func getKey(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> OpenAIKey {
         // impl...
     }
     private func setHeaders(request: inout URLRequest, httpMethod: String, headers: [String: String]) {
