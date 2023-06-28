@@ -25,7 +25,7 @@ public struct PhotonfireServiceMacro: PeerMacro {
             // Currently we supports generating GET functions
             generateGetFunctionDecl(syntax: member, context: context)
         }
-        
+                
         let classDecl = try ClassDeclSyntax("class \(raw: "Photonfire\(name)"): \(raw: name)") {
             try FunctionDeclSyntax("static func createInstance(client: PhotonfireClient) -> \(raw: "Photonfire\(name)")") {
                 CodeBlockItemSyntax(item: .decl("return \(raw: "Photonfire\(name)")(client: client)"))
@@ -44,13 +44,13 @@ public struct PhotonfireServiceMacro: PeerMacro {
                 MemberDeclListItemSyntax(decl: function)
             }
             
-            generateSetHeaderDecl()
+            generateSetHeadersDecl()
         }
         
         return [DeclSyntax(classDecl)]
     }
     
-    private static func generateSetHeaderDecl() -> DeclSyntax{
+    private static func generateSetHeadersDecl() -> DeclSyntax {
         return """
         private func setHeaders(request: inout URLRequest, httpMethod: String, headers: [String: String]) {
             headers.forEach { (k, v) in
