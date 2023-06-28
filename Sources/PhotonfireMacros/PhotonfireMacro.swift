@@ -33,8 +33,7 @@ public struct PhotonfireServiceMacro: PeerMacro {
             
             DeclSyntax("private let client: PhotonfireClient")
             
-            // TODO No idea why this initializer is not followed by a line break, so add it here
-            try InitializerDeclSyntax("\nprivate init(client: PhotonfireClient)") {
+            try InitializerDeclSyntax("private init(client: PhotonfireClient)") {
                 CodeBlockItemListSyntax([
                     .init(item: .decl("self.client = client"))
                 ])
