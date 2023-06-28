@@ -19,3 +19,6 @@ protocol AccountService: PhotonfireServiceProtocol {
     @PhotonfireGet(path: "/account")
     func getAccount(@PhotonfireQuery(name: "is_activated") activated: Bool) async throws -> Account
 }
+
+let client = PhotonfireClient.Builder(baseURL: URL(string: "http")!).build()
+let service = client.createService(of: PhotonfireAccountService.self)

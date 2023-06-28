@@ -44,8 +44,8 @@ final class PhotonfireTests: XCTestCase {
 
                     urlComponents.path += appendPath
                     urlComponents.queryItems = [
-                        .init(name: "id", value: id),
-                        .init(name: "name", value: name)
+                        .init(name: "id", value: String(id)),
+                        .init(name: "name", value: String(name))
                     ]
 
                     guard let finalURL = urlComponents.url else {
@@ -70,7 +70,7 @@ final class PhotonfireTests: XCTestCase {
 
                     urlComponents.path += appendPath
                     urlComponents.queryItems = [
-                        .init(name: "is_activated", value: activated)
+                        .init(name: "is_activated", value: String(activated))
                     ]
 
                     guard let finalURL = urlComponents.url else {

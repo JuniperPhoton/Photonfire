@@ -75,10 +75,11 @@ public struct PhotonfireServiceMacro: PeerMacro {
             var queryItems: [String] = []
             let parameters = funcDecl.signature.input.parameterList.map { $0.as(FunctionParameterSyntax.self) }
             
-            parameters.forEach { s in
-                if let s = s {
-                    let name = s.tryGetQueryName() ?? s.firstName.text
-                    queryItems.append(".init(name: \"\(name)\", value: \(s.firstName.text))")
+            parameters.forEach { parameter in
+                if let parameter {
+                    let parameterNameLiteral = parameter.firstName.text
+                    let name = parameter.tryGetQueryName() ?? parameterNameLiteral
+                    queryItems.append(".init(name: \"\(name)\", value: String(\(parameterNameLiteral)))")
                 }
             }
             
@@ -139,6 +140,13 @@ public struct PhotonfireServiceMacro: PeerMacro {
 }
 
 extension FunctionParameterSyntax {
+    /// Try to get the query name given a ``FunctionParameterSyntax``.
+    /// For example:
+    ///
+    /// ```swift
+    /// func foo(@PhotonfireQuery("is_activated") isActivated: Bool)
+    /// ```
+    /// By calling this method of the ``isActivated`` FunctionParameterSyntax, you will get the string of "is_activated".
     func tryGetQueryName() -> String? {
         guard let attributeSyntax = self.attributes?.first?.as(AttributeSyntax.self) else {
             return nil
